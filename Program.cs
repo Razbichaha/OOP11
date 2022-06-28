@@ -37,7 +37,7 @@ namespace OOP11
                 bool gameOver;
 
                 _render.ShowBatle(_lands[0], _lands[1]);
-                _lands[attackLand].ToAttack(_lands[Inventory(attackLand)], out gameOver);
+                _lands[attackLand].Attack(_lands[Inventory(attackLand)], out gameOver);
                 attackLand = Inventory(attackLand);
 
                 if (gameOver == true)
@@ -50,24 +50,24 @@ namespace OOP11
 
         private void NominateWinner()
         {
-            foreach (var item in _lands)
+            foreach (Land land in _lands)
             {
-                if (item.GetQuantitySoldiers() != 0)
+                if (land.GetQuantitySoldiers() != 0)
                 {
-                    _render.ShowWinner(item);
+                    _render.ShowWinner(land);
                 }
             }
         }
 
         private int Inventory(int number)
         {
-            int numberInv = 0;
+            int numberTemp = 0;
 
             if (number == 0)
             {
-                numberInv = 1;
+                numberTemp = 1;
             }
-            return numberInv;
+            return numberTemp;
         }
 
         private int IndicateWhosFirst()
@@ -150,12 +150,12 @@ namespace OOP11
 
         private void ShowPlatoon(List<Platoon> platoons, int cursorPositionLeft, int cursorPositionTop)
         {
-            foreach (var item in platoons)
+            foreach (Platoon platoon in platoons)
             {
                 Console.SetCursorPosition(cursorPositionLeft, cursorPositionTop);
-                Console.Write($"Взвод - {item._id + 1}  Отрядов {item.GetQuantitySquad()}  ");
-                ShowSqud(item.GetSquad(), cursorPositionLeft, cursorPositionTop + 1);
-                cursorPositionTop += item.GetQuantitySquad();
+                Console.Write($"Взвод - {platoon._id + 1}  Отрядов {platoon.GetQuantitySquad()}  ");
+                ShowSqud(platoon.GetSquad(), cursorPositionLeft, cursorPositionTop + 1);
+                cursorPositionTop += platoon.GetQuantitySquad();
             }
         }
 
@@ -163,15 +163,15 @@ namespace OOP11
         {
             int counter = 1;
 
-            foreach (var item in squads)
+            foreach (Squad squad in squads)
             {
                 Console.SetCursorPosition(cursorPositionLeft, cursorPositionTop);
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write($"Отряд - {counter}  Бойцов-{item.GetQuantity()}   \n");
+                Console.Write($"Отряд - {counter}  Бойцов-{squad.GetQuantity()}   \n");
                 Console.ForegroundColor = ConsoleColor.White;
                 counter++;
-                ShowSoldier(item.GetSoldiers(), cursorPositionLeft, cursorPositionTop + 1);
-                cursorPositionTop += item.GetQuantity() + 1;
+                ShowSoldier(squad.GetSoldiers(), cursorPositionLeft, cursorPositionTop + 1);
+                cursorPositionTop += squad.GetQuantity() + 1;
             }
         }
 
@@ -179,9 +179,9 @@ namespace OOP11
         {
             int counter = 1;
 
-            foreach (var item in soldiers)
+            foreach (Soldier soldier in soldiers)
             {
-                int life = item.GetLife();
+                int life = soldier.GetLife();
                 Console.SetCursorPosition(cursorPositionLeft, cursorPositionTop);
                 Console.Write($"  Боец - {counter}  Жизнь-{life}\n");
                 cursorPositionTop++;
@@ -208,7 +208,7 @@ namespace OOP11
             GenerateListPlatoons();
         }
 
-        internal void ToAttack(Land land, out bool gameOver)
+        internal void Attack(Land land, out bool gameOver)
         {
             gameOver = false;
             int[] idPlatoonsDefense = GetIdPlatoons(land);
@@ -218,14 +218,14 @@ namespace OOP11
             {
                 if (idPlatoonsDefense.Length != 0)
                 {
-                    _platoons[i].ToAttac(_platoons[i], land._platoons[counter]);
-                    EnumerationIdPlatoonsDefense(idPlatoonsDefense.Length, ref counter);
+                    _platoons[i].Attack(_platoons[i], land._platoons[counter]);
+                    GetEnumerationIdPlatoonsDefense(idPlatoonsDefense.Length, ref counter);
                 }
             }
 
-            foreach (var item in _platoons)
+            foreach (Platoon platoon in _platoons)
             {
-                if (item.GetQuantitySquad() == 0)
+                if (platoon.GetQuantitySquad() == 0)
                 {
                     gameOver = true;
                 }
@@ -235,6 +235,7 @@ namespace OOP11
         internal List<Platoon> GetPlatoons()
         {
             List<Platoon> platoons = new List<Platoon>();
+
             foreach (Platoon platoon in _platoons)
             {
                 platoons.Add(platoon);
@@ -250,6 +251,7 @@ namespace OOP11
         internal int GetQuantitySquads()
         {
             int quantity = 0;
+
             foreach (Platoon platoon in _platoons)
             {
                 quantity += platoon.GetQuantitySquad();
@@ -260,6 +262,7 @@ namespace OOP11
         internal int GetQuantitySoldiers()
         {
             int quantity = 0;
+
             foreach (Platoon platoon in _platoons)
             {
                 quantity += platoon.GetQuantitySoldiersSquads();
@@ -278,7 +281,7 @@ namespace OOP11
             return idPlatoonsDefense;
         }
 
-        private void EnumerationIdPlatoonsDefense(int lengthMassiv, ref int counter)
+        private void GetEnumerationIdPlatoonsDefense(int lengthMassiv, ref int counter)
         {
             counter++;
 
@@ -311,7 +314,7 @@ namespace OOP11
             Generate();
         }
 
-        internal void ToAttac(Platoon attac, Platoon defense)
+        internal void Attack(Platoon attac, Platoon defense)
         {
             int[] idPlatoonsDefense = GetIdSquads(defense);
             int counter = 0;
@@ -323,8 +326,8 @@ namespace OOP11
 
                 if (count != 0)
                 {
-                    attac._squads[i].ToAttac(defense._squads[counter]);
-                    EnumerationIdplatoonsDefense(idPlatoonsDefense.Length, ref counter);
+                    attac._squads[i].Attack(defense._squads[counter]);
+                    GetEnumerationIdplatoonsDefense(idPlatoonsDefense.Length, ref counter);
                 }
             }
 
@@ -391,7 +394,7 @@ namespace OOP11
             return idPlatoonsDefense;
         }
 
-        private void EnumerationIdplatoonsDefense(int lengthMassiv, ref int counter)
+        private void GetEnumerationIdplatoonsDefense(int lengthMassiv, ref int counter)
         {
             counter++;
 
@@ -414,7 +417,7 @@ namespace OOP11
             Generate();
         }
 
-        internal void ToAttac(Squad defense)
+        internal void Attack(Squad defense)
         {
             List<Soldier> deleteSoldiers = new List<Soldier>();
             int counter = 0;
@@ -425,7 +428,7 @@ namespace OOP11
                 {
                     Soldier defense1 = defense._soldiers[counter];
                     Soldier defense2 = defense._soldiers[counter];
-                    EnumerationSoldierDefense(defense._soldiers, ref counter);
+                    GetEnumerationSoldierDefense(defense._soldiers, ref counter);
 
                     int damage = _soldiers[i].Damage;
                     _soldiers[i].Fair(damage, defense1, defense2);
@@ -462,7 +465,7 @@ namespace OOP11
             return soldiers;
         }
 
-        private void EnumerationSoldierDefense(List<Soldier> soldiers, ref int counter)
+        private void GetEnumerationSoldierDefense(List<Soldier> soldiers, ref int counter)
         {
             counter++;
 
@@ -492,7 +495,7 @@ namespace OOP11
     #endregion
 
     #region солдаты
-    class Soldier//боец
+    class Soldier
     {
         private int Life;
 
@@ -511,7 +514,7 @@ namespace OOP11
         { }
     }
 
-    class MachineGunner : Soldier//пулеметчик
+    class MachineGunner : Soldier
     {
         internal string speciality = "Пулеметчик";
 
